@@ -5,10 +5,12 @@ import morgan from "morgan";
 
 import authRouteRoute from "./routes/auth.route";
 import welcomeRoute from "./routes/welcome.route";
+import { env } from "./utils/env";
 const app = express();
+
 app.use(
     cors({
-        origin: ["http://localhost:4000"],
+        origin: env.CORS_ORIGINS.split(","),
         credentials: true,
     })
 );
