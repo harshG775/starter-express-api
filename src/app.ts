@@ -5,7 +5,7 @@ import morgan from "morgan";
 
 import authRouteRoute from "./routes/auth.route";
 import welcomeRoute from "./routes/welcome.route";
-import { env } from "./utils/env";
+import { env } from "./lib/env";
 const app = express();
 
 app.use(
