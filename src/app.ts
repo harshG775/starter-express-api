@@ -7,8 +7,8 @@ import { env } from "./lib/env";
 const app = express();
 
 app.use(
-    cors({ 
-        origin: env.CORS_ORIGINS.split(","), 
+    cors({
+        origin: env.CORS_ORIGINS.split(","),
         credentials: true,
     })
 );
@@ -25,7 +25,7 @@ app.use(morgan("dev"));
 import welcomeRoute from "./routes/welcome.route";
 import userRouter from "./routes/user.route";
 
-app.use("/", welcomeRoute);
+app.use("/api/v1", welcomeRoute);
 app.use("/api/v1/users", userRouter);
 
 export default app;
