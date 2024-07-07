@@ -6,7 +6,7 @@ export const informational = {
 };
 
 // 2xx Success
-export const success = {
+export const clientSuccess = {
     OK: 200,
     Created: 201,
     Accepted: 202,
