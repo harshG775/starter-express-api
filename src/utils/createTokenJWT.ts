@@ -20,7 +20,10 @@ export default async function createToken({ tokenType, user, }: CreateTokenType)
                 email: user.email,
                 password: user.password,
             },
-            JWT_SECRET
+            JWT_SECRET,
+            {
+                expiresIn: "15d",
+            }
         );
     }
     return jwt.sign(
@@ -31,7 +34,7 @@ export default async function createToken({ tokenType, user, }: CreateTokenType)
         },
         JWT_SECRET,
         {
-            expiresIn: "7d",
+            expiresIn: "1d",
         }
     );
 }

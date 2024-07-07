@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { asyncHandler } from "../utils/asyncHandler";
 import { PrismaClient, Role } from "@prisma/client";
-import { clientError, clientSuccess, serverError } from "../utils/httpStatus";
+import { clientError, clientSuccess } from "../utils/httpStatus";
 import ApiError from "../errors/ApiError";
 
 import { z } from "zod";
@@ -23,14 +23,6 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
         throw new ApiError(clientError.Conflict, error?.errors[0].message);
     }
     /* check if user already exists */
-    const existingUsername = await prisma.user.findUnique({
-        where: {
-            username: registerForm.username,
-        },
-    });
-    if (existingUsername) {
-        throw new ApiError(clientError.Conflict, "user with this username already exists");
-    }
     const existingEmail = await prisma.user.findUnique({
         where: {
             email: registerForm.email,
@@ -39,25 +31,21 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
     if (existingEmail) {
         throw new ApiError(clientError.Conflict, "user with this email already exists");
     }
-    /* create new user */
-    const token = await createToken({
-        tokenType: "refreshToken",
-        user: {
-            username: username,
-            email: email,
-            password: password,
+    const existingUsername = await prisma.user.findUnique({
+        where: {
+            username: registerForm.username,
         },
     });
+    if (existingUsername) {
+        throw new ApiError(clientError.Conflict, "user with this username already exists");
+    }
+    /* create new user */
     const hashedPassword = await bcrypt.hash(registerForm.password, 10);
     await prisma.user.create({
         data: {
-            avatar: null,
             username: registerForm.username,
             email: registerForm.email,
             password: hashedPassword,
-            role: Role.USER,
-            verified: false,
-            refreshToken: token,
         }, 
     });
     //
@@ -69,14 +57,20 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
+    /*check if form is valid*/
     const { success, error, data: loginForm, } = loginSchema.safeParse({ email, password, });
     if (!success) {
         throw new ApiError(clientError.Conflict, error?.errors[0].message);
     }
+    /* check if user exists */
     const user = await prisma.user.findUnique({
         where: {
             email: loginForm.email,
         },
+        select: {
+            email: true,
+            password: true,
+        }
     });
     if (user === null) {
         throw new ApiError(
@@ -84,6 +78,8 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
             "User with that email doesn't exist"
         );
     }
+
+    /* check if password is correct */
     const isPasswordCorrect = await bcrypt.compare(
         loginForm.password,
         user.password
@@ -91,13 +87,24 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     if (!isPasswordCorrect) {
         throw new ApiError(clientError.Conflict, "Password is incorrect");
     }
+    //
 
-    res.cookie("refreshToken", user.refreshToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    // const token = createToken({
+    //     tokenType: "accessToken",
+    //     user: {
+    //         username: user.username,
+    //         email: user.email,
+    //         password: user.password,
+    //     },
+    // });
+    
+
+    // res.cookie("refreshToken", user.refreshToken, {
+    //     httpOnly: true,
+    //     secure: true,
+    //     sameSite: "lax",
+    //     maxAge: 7 * 24 * 60 * 60 * 1000,
+    // });
     return res.status(200).json({
         success: true,
         message: "Login successfully",

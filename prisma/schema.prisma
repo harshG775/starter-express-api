@@ -17,6 +17,12 @@ enum Role {
     USER
     ADMIN
 }
+
+enum TokenType {
+    REFRESH
+    ACCESS
+}
+
 model User {
     id       String  @id @default(cuid())
     avatar   String?
@@ -26,10 +32,25 @@ model User {
     role     Role    @default(USER)
     verified Boolean @default(false)
 
-    refreshToken String  @unique
+    tokens Token[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@index([refreshToken, username, email])
+    @@index([username, email])
+}
+
+model Token {
+    id        String    @id @default(cuid())
+    TokenType TokenType
+    token     String
+    expiresAt DateTime
+
+    User   User   @relation(fields: [userId], references: [id])
+    userId String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([token, userId])
 }
