@@ -1,11 +1,11 @@
 import { z } from "zod";
-export const username = z
+export const name = z
     .string()
-    .min(1, { message: "Username must be at least 1 characters long" })
-    .max(20, { message: "Username must be at most 20 characters long" });
+    .min(1, { message: "Missing required field: Name" })
+    .max(20, { message: "Name must be at most 20 characters long" });
 export const email = z
     .string()
-    .min(1, { message: "Email is required" })
+    .min(1, { message: "Missing required field: Email" })
     .email({ message: "Invalid email address" });
 export const password = z
     .string()

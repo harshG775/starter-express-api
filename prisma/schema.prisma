@@ -18,39 +18,59 @@ enum Role {
     ADMIN
 }
 
-enum TokenType {
-    REFRESH
-    ACCESS
-}
-
 model User {
     id       String  @id @default(cuid())
     avatar   String?
-    username String  @unique
+    name     String
     email    String  @unique
     password String
     role     Role    @default(USER)
     verified Boolean @default(false)
 
-    tokens Token[]
+    token token?
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@index([username, email])
+    @@index([name, email])
 }
 
-model Token {
-    id        String    @id @default(cuid())
-    TokenType TokenType
-    token     String
-    expiresAt DateTime
+model token {
+    id           String   @id @default(cuid())
+    refreshToken String   @unique
+    expiresAt    DateTime
 
     User   User   @relation(fields: [userId], references: [id])
-    userId String
+    userId String @unique
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
-
-    @@unique([token, userId])
 }
+
+// const { PrismaClient } = require('@prisma/client');
+// const prisma = new PrismaClient();
+// async function deleteExpiredRefreshTokens() {
+//   const now = new Date();
+//   try {
+//     const result = await prisma.token.deleteMany({
+//       where: {
+//         expiresAt: {
+//           lt: now,
+//         },
+//       },
+//     });
+//     console.log(`Deleted ${result.count} expired refresh tokens`);
+//   } catch (error) {
+//     console.error('Error deleting expired refresh tokens:', error);
+//   }
+// }
+// const millisecondsInADay = 86400000;
+
+// // Schedule the deleteExpiredRefreshTokens function to run every 24 hours
+// setInterval(() => {
+//   console.log('Running a task to delete expired refresh tokens');
+//   deleteExpiredRefreshTokens();
+// }, millisecondsInADay);
+
+// // Optionally, run the function once when the server starts
+// deleteExpiredRefreshTokens();
