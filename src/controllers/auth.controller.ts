@@ -9,7 +9,7 @@ import { email, password, name } from "../schemas/z.schema";
 
 import bcrypt from "bcrypt";
 import { createRefreshToken } from "../lib/jwt.lib";
-import { parseDuration } from "../utils/convertDate";
+import { parseDuration } from "../utils/parseDuration";
 import { env } from "../lib/env";
 export const prisma = new PrismaClient();
 

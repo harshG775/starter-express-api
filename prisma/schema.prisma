@@ -46,31 +46,3 @@ model token {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }
-
-// const { PrismaClient } = require('@prisma/client');
-// const prisma = new PrismaClient();
-// async function deleteExpiredRefreshTokens() {
-//   const now = new Date();
-//   try {
-//     const result = await prisma.token.deleteMany({
-//       where: {
-//         expiresAt: {
-//           lt: now,
-//         },
-//       },
-//     });
-//     console.log(`Deleted ${result.count} expired refresh tokens`);
-//   } catch (error) {
-//     console.error('Error deleting expired refresh tokens:', error);
-//   }
-// }
-// const millisecondsInADay = 86400000;
-
-// // Schedule the deleteExpiredRefreshTokens function to run every 24 hours
-// setInterval(() => {
-//   console.log('Running a task to delete expired refresh tokens');
-//   deleteExpiredRefreshTokens();
-// }, millisecondsInADay);
-
-// // Optionally, run the function once when the server starts
-// deleteExpiredRefreshTokens();
