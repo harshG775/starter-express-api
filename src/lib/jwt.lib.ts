@@ -3,7 +3,10 @@ import jwt from "jsonwebtoken";
 import { env } from "./env";
 
 const { JWT_SECRET, REFRESH_TOKEN_EXPIRE_IN, ACCESS_TOKEN_EXPIRE_IN } = env;
-
+export enum TokenEnum {
+    REFRESH = "REFRESH",
+    ACCESS = "ACCESS",
+}
 /**
  * Creates a refresh token for the given user.
  * @param user The user object from the database.
@@ -12,6 +15,7 @@ const { JWT_SECRET, REFRESH_TOKEN_EXPIRE_IN, ACCESS_TOKEN_EXPIRE_IN } = env;
 export function createRefreshToken(user: User) {
     const payload = {
         id: user.id,
+        type: TokenEnum.REFRESH,
     };
     return jwt.sign(payload, JWT_SECRET, {
         expiresIn: REFRESH_TOKEN_EXPIRE_IN,
@@ -29,6 +33,7 @@ export function createAccessToken(user: User) {
         role: user.role,
         name: user.name,
         verified: user.verified,
+        type: TokenEnum.ACCESS,
     };
     return jwt.sign(payload, JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRE_IN });
 }
@@ -40,4 +45,14 @@ export function createAccessToken(user: User) {
  */
 export function verifyToken(token: string) {
     return jwt.verify(token, JWT_SECRET);
+}
+
+
+/**
+  * @param decodedJWT The verified token.
+  * @returns is JWT Expired.
+*/
+export function isJWTExpired(decodedJWT: any) {
+    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds since Unix epoch
+    return decodedJWT.exp < currentTime;
 }
