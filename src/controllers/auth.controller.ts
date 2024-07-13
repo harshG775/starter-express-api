@@ -8,7 +8,11 @@ import { z } from "zod";
 import { email, password, name } from "../schemas/z.schema";
 
 import bcrypt from "bcrypt";
-import { createRefreshToken } from "../lib/jwt.lib";
+import {
+    createAccessToken,
+    createRefreshToken,
+    verifyToken,
+} from "../lib/jwt.lib";
 import { parseDuration } from "../utils/parseDuration";
 import { env } from "../lib/env";
 export const prisma = new PrismaClient();
@@ -95,34 +99,37 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
     }
     //create token
     const refreshToken = createRefreshToken(user);
-    const expiresIn = new Date(
-        Date.now() + parseDuration(env.EXCESS_TOKEN_EXPIRE_IN)
-    );
-    const createAndUpdateToken = await prisma.token.upsert({
-        where: {
-            userId: user.id,
-        },
-        update: {
-            refreshToken: refreshToken,
-            expiresAt: expiresIn,
-        },
-        create: {
-            userId: user.id,
-            refreshToken: refreshToken,
-            expiresAt: expiresIn,
-        },
-    });
+    const accessToken = createAccessToken(user);
 
-    return res.status(200).json({
+    return res.status(clientSuccess.OK).json({
         success: true,
         data: {
-            refresh_token: `${refreshToken}`,
+            refresh_token: refreshToken,
+            access_token: accessToken,
         },
     });
 });
 export const profile = asyncHandler(async (req: Request, res: Response) => {
-    // const bearerToken = req.header
+    const { authorization } = req.headers;
+    if (!authorization || typeof authorization !== "string") {
+        throw new ApiError(
+            clientError.Unauthorized,
+            "Authorization header missing or invalid"
+        );
+    }
+    const refreshToken: string = authorization.split(" ")[1];
+    const verifiedToken = verifyToken(refreshToken)
+    console.log(isJWTExpired(verifiedToken));
+    res.status(200).json({
+        success: true,
+    });
 });
-export const refreshAccessToken = asyncHandler( async (req: Request, res: Response) => {
-    // const refreshToken = req.body.refreshToken
-});
+export const refreshAccessToken = asyncHandler(
+    async (req: Request, res: Response) => {
+        // const refreshToken = req.body.refreshToken
+    }
+);
+function isJWTExpired(decodedJWT:any) {
+    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds since Unix epoch
+    return decodedJWT.exp < currentTime;
+}

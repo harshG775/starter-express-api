@@ -27,22 +27,8 @@ model User {
     role     Role    @default(USER)
     verified Boolean @default(false)
 
-    token token?
-
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     @@index([name, email])
-}
-
-model token {
-    id           String   @id @default(cuid())
-    refreshToken String   @unique
-    expiresAt    DateTime
-
-    User   User   @relation(fields: [userId], references: [id])
-    userId String @unique
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
 }
