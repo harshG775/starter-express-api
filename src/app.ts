@@ -4,7 +4,6 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 
 import { env } from "./lib/env";
-import { deleteExpiredRefreshTokens } from "./utils/deleteExpiredToken";
 const app = express();
 
 app.use(
