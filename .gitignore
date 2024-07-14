@@ -122,3 +122,5 @@ dist
 
 # prisma
 /prisma/migrations
+
+/build

@@ -25,9 +25,10 @@ app.use(morgan("dev"));
 // routes import
 import welcomeRoute from "./routes/welcome.route";
 import authRouter from "./routes/auth.route";
+import universalRouter from "./routes/universal.route";
 
 app.use("/api/", welcomeRoute);
 app.use("/api/v1/auth", authRouter);
-
+app.use("/",universalRouter)
 
 export default app;
