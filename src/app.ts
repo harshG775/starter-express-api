@@ -22,9 +22,9 @@ app.use(morgan("dev"));
 // app.use("/api/v1/users", authenticateUser);
 
 // routes import
-import welcomeRoute from "./routes/welcome.route";
-import authRouter from "./routes/auth.route";
-import universalRouter from "./routes/universal.route";
+import welcomeRoute from "./routes/welcome.routes";
+import authRouter from "./routes/auth.routes";
+import universalRouter from "./routes/universal.routes";
 
 app.use("/api/", welcomeRoute);
 app.use("/api/v1/auth", authRouter);
